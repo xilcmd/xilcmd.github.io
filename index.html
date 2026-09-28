@@ -157,7 +157,11 @@
   /* Stages */
   ol.stages { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); counter-reset: s; border-top: 2px solid var(--ink); }
   ol.stages li { counter-increment: s; padding: 1rem 1rem 0 0; }
-  ol.stages li::before { content: counter(s); display: block; font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; }
+  ol.stages li { display: grid; grid-template-columns: auto 1fr; column-gap: 0.6rem; align-content: start; }
+  ol.stages li::before { content: counter(s); font-family: var(--mono); font-size: 0.85rem; color: var(--muted); grid-column: 1; grid-row: 1; align-self: center; }
+  ol.stages svg { grid-column: 2; grid-row: 1; width: 30px; height: 30px; color: var(--ink); fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  ol.stages strong, ol.stages span { grid-column: 1 / -1; }
+  ol.stages strong { margin-top: 0.6rem; }
   ol.stages strong { display: block; font-size: 1.05rem; }
   ol.stages span { color: var(--muted); font-size: 0.93rem; line-height: 1.45; display: block; margin-top: 0.25rem; }
 
@@ -291,12 +295,12 @@ xil gui</code></pre>
       <h2 id="pipeline-title">From page to master</h2>
       <p class="intro">The core stages run in order. Utilities for voice discovery, sound-effect libraries, script revisions, and cleanup sit alongside them.</p>
       <ol class="stages">
-        <li><strong>Scan</strong><span>Catch unknown speakers before they vanish from the output.</span></li>
-        <li><strong>Parse</strong><span>Turn the markdown script into structured JSON.</span></li>
-        <li><strong>Produce</strong><span>Generate voice and sound-effect stems.</span></li>
-        <li><strong>Assemble</strong><span>Lay dialogue, effects, ambience, and music on a timeline.</span></li>
-        <li><strong>Export layers</strong><span>Write separate WAVs for hand mixing in a DAW.</span></li>
-        <li><strong>Master</strong><span>Produce the final episode MP3.</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/><path d="M8 10.5h5"/></svg><strong>Scan</strong><span>Catch unknown speakers before they vanish from the output.</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4c-2 0-3 1-3 3v2.5c0 1-.8 2-2 2.5 1.2.5 2 1.5 2 2.5V17c0 2 1 3 3 3"/><path d="M16 4c2 0 3 1 3 3v2.5c0 1 .8 2 2 2.5-1.2.5-2 1.5-2 2.5V17c0 2-1 3-3 3"/></svg><strong>Parse</strong><span>Turn the markdown script into structured JSON.</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21M9 21h6"/></svg><strong>Produce</strong><span>Generate voice and sound-effect stems.</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/><rect x="5" y="4.5" width="6" height="3" rx="1"/><rect x="10" y="10.5" width="8" height="3" rx="1"/><rect x="4" y="16.5" width="11" height="3" rx="1"/></svg><strong>Assemble</strong><span>Lay dialogue, effects, ambience, and music on a timeline.</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5"/><path d="M3 16.5l9 4.5 9-4.5"/></svg><strong>Export layers</strong><span>Write separate WAVs for hand mixing in a DAW.</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 5.5a6.5 6.5 0 0 1 6.5 6.5"/></svg><strong>Master</strong><span>Produce the final episode MP3.</span></li>
       </ol>
     </div>
   </section>
