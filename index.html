@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>xil-pipeline: markdown script to broadcast-ready audio</title>
+<meta name="description" content="xil-pipeline turns a written script and a cast list into a fully mixed, broadcast-ready podcast episode. Available as a Python package and a Rust binary.">
+<meta property="og:title" content="xil-pipeline">
+<meta property="og:description" content="Markdown script in, broadcast-ready episode out. Python and Rust implementations.">
+<meta property="og:url" content="https://xilcmd.github.io/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F3F5F6;
+    --ink: #16212B;
+    --muted: #56636E;
+    --rule: #D3DAE0;
+    --panel: #FFFFFF;
+    --py: #2F6497;
+    --rs: #A8431B;
+    --sans: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "Atkinson Hyperlegible Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --measure: 68ch;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #121A21;
+      --ink: #E4EAEE;
+      --muted: #9AA8B3;
+      --rule: #2A3641;
+      --panel: #19232C;
+      --py: #86B3DE;
+      --rs: #E48F67;
+    }
+  }
+  :root[data-theme="dark"] {
+      --paper: #121A21;
+      --ink: #E4EAEE;
+      --muted: #9AA8B3;
+      --rule: #2A3641;
+      --panel: #19232C;
+      --py: #86B3DE;
+      --rs: #E48F67;
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 1.0625rem/1.6 var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid var(--py); outline-offset: 3px; border-radius: 2px; }
+  code, pre { font-family: var(--mono); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1.25rem, 4vw, 2.5rem); }
+
+  /* Header */
+  header.site {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.25rem 0; border-bottom: 1px solid var(--rule);
+  }
+  .brand { font-weight: 800; font-size: 1.125rem; text-decoration: none; letter-spacing: -0.01em; }
+  header.site nav { display: flex; gap: 1.5rem; font-size: 0.95rem; }
+  header.site nav a { text-decoration: none; color: var(--muted); }
+  header.site nav a:hover { color: var(--ink); }
+
+  /* Hero */
+  .hero { padding: clamp(3rem, 8vw, 6rem) 0 clamp(2.5rem, 6vw, 4rem); }
+  .hero h1 {
+    font-weight: 800;
+    font-size: clamp(2.4rem, 6.2vw, 4.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin: 0 0 1.5rem;
+    max-width: 14ch;
+  }
+  .hero p.lede { font-size: clamp(1.1rem, 1.8vw, 1.3rem); color: var(--muted); max-width: 52ch; margin: 0; }
+
+  /* Signal: script → waveform */
+  .signal {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: clamp(1rem, 3vw, 2rem);
+    align-items: center;
+  }
+  .script {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1.1rem 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 0;
+    white-space: pre;
+  }
+  .script .cue { color: var(--muted); }
+  .script .who { font-weight: 600; }
+  .wave figure { margin: 0; }
+  .wave svg { width: 100%; height: auto; display: block; }
+  .wave figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 0.6rem; }
+  .wave figcaption .k-py { color: var(--py); font-weight: 600; }
+  .wave figcaption .k-rs { color: var(--rs); font-weight: 600; }
+  .bar { transform-box: fill-box; transform-origin: center bottom; }
+  .bar.down { transform-origin: center top; }
+  @media (prefers-reduced-motion: no-preference) {
+    .bar { animation: rise 700ms cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i) * 9ms); }
+    @keyframes rise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  }
+
+  /* Sections */
+  section { padding: clamp(3rem, 7vw, 5rem) 0; border-top: 1px solid var(--rule); }
+  section h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -0.02em; line-height: 1.15; margin: 0 0 0.75rem; font-weight: 800; }
+  section > .wrap > p.intro { color: var(--muted); max-width: var(--measure); margin: 0 0 2.5rem; }
+
+  /* Two implementations */
+  .impls { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); }
+  .impl { border-top: 6px solid var(--lang); padding-top: 1.5rem; }
+  .impl.py { --lang: var(--py); }
+  .impl.rs { --lang: var(--rs); }
+  .impl h3 { font-size: 1.6rem; margin: 0; letter-spacing: -0.02em; }
+  .impl .repo { font-family: var(--mono); font-size: 0.9rem; color: var(--lang); margin: 0.15rem 0 1rem; }
+  .impl p { max-width: 52ch; }
+  .impl ul { padding-left: 1.1rem; margin: 1rem 0 1.5rem; }
+  .impl li { margin-bottom: 0.45rem; }
+  .impl pre {
+    background: var(--panel); border: 1px solid var(--rule); border-left: 3px solid var(--lang);
+    border-radius: 4px; padding: 0.9rem 1rem; font-size: 0.85rem; line-height: 1.65;
+    overflow-x: auto; margin: 0 0 1.5rem;
+  }
+  .impl pre .c { color: var(--muted); }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .btn {
+    display: inline-block; padding: 0.6rem 1.05rem; border-radius: 4px; font-weight: 600;
+    text-decoration: none; font-size: 0.95rem; border: 2px solid var(--lang);
+  }
+  .btn.solid { background: var(--lang); color: var(--paper); }
+  .btn.line { color: var(--lang); }
+  .btn:hover { text-decoration: underline; }
+
+  /* Choosing */
+  .choose { display: grid; grid-template-columns: 1fr 1fr; gap: 0 clamp(1.5rem, 4vw, 3.5rem); max-width: 920px; }
+  .choose p { margin: 0 0 1.25rem; padding-left: 1rem; border-left: 3px solid var(--lang); }
+  .choose .py { --lang: var(--py); }
+  .choose .rs { --lang: var(--rs); }
+
+  /* Stages */
+  ol.stages { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); counter-reset: s; border-top: 2px solid var(--ink); }
+  ol.stages li { counter-increment: s; padding: 1rem 1rem 0 0; }
+  ol.stages li::before { content: counter(s); display: block; font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; }
+  ol.stages strong { display: block; font-size: 1.05rem; }
+  ol.stages span { color: var(--muted); font-size: 0.93rem; line-height: 1.45; display: block; margin-top: 0.25rem; }
+
+  /* Parity */
+  .parity { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; }
+  .parity p { max-width: var(--measure); margin-top: 0; }
+  .parity pre {
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 0.9rem 1rem; font-size: 0.85rem; line-height: 1.65; overflow-x: auto; margin: 0;
+  }
+
+  footer { border-top: 1px solid var(--rule); padding: 2rem 0 3rem; color: var(--muted); font-size: 0.93rem; }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+
+  @media (max-width: 860px) {
+    .signal, .impls, .parity, .choose { grid-template-columns: 1fr; }
+    ol.stages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .impls { gap: 3rem; }
+  }
+  @media (max-width: 480px) {
+    header.site nav { gap: 1rem; }
+    ol.stages { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="site">
+    <a class="brand" href="./">xilcmd</a>
+    <nav aria-label="Primary">
+      <a href="#versions">Versions</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="https://github.com/xilcmd">GitHub</a>
+    </nav>
+  </header>
+</div>
+
+<main>
+  <div class="wrap hero">
+    <h1>A script goes in. An episode comes out.</h1>
+    <p class="lede">xil-pipeline turns a markdown script and a cast list into a fully mixed, broadcast-ready audio episode: voices, sound effects, music, and a final master MP3. It comes in two implementations that produce the same output.</p>
+
+    <div class="signal">
+<pre class="script" aria-label="Example script excerpt"><span class="cue">## SCENE 1: The porch, dusk</span>
+<span class="cue">[AMBIENCE: crickets, distant traffic]</span>
+
+<span class="who">NARRATOR:</span> The screen door
+had been broken all summer.
+
+<span class="cue">[SFX: screen door creaks open]</span>
+
+<span class="who">MAGGIE:</span> [whispering] You
+heard that too, didn't you?</pre>
+      <div class="wave">
+        <figure>
+          <svg id="wave" viewBox="0 0 600 160" role="img" aria-labelledby="wave-title">
+            <title id="wave-title">A waveform drawn from the script excerpt, mirrored to show the Python and Rust implementations producing the same result.</title>
+          </svg>
+          <figcaption>Each bar is drawn from the script beside it. <span class="k-py">Python</span> above the line, <span class="k-rs">Rust</span> below: same script, same episode.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+
+  <section id="versions">
+    <div class="wrap">
+      <h2>Two implementations, one pipeline</h2>
+      <p class="intro">The Python package is the reference. The Rust port reimplements every command as a single binary and is checked against the Python output file by file.</p>
+
+      <div class="impls">
+        <article class="impl py" aria-labelledby="py-title">
+          <h3 id="py-title">Python</h3>
+          <p class="repo">xilcmd/xil-pipeline</p>
+          <p>The original implementation, installed from PyPI. Each pipeline stage is its own command, and every command that calls a paid API supports <code>--dry-run</code> so you can preview cost before spending quota.</p>
+          <ul>
+            <li>Python 3.12+ and ffmpeg</li>
+            <li>ElevenLabs by default, with local Chatterbox Turbo voices and MMAudio sound effects as options</li>
+            <li>Exports separate WAV layers for mixing in Audacity</li>
+            <li>Man pages and full documentation on Read the Docs</li>
+          </ul>
+<pre><code><span class="c"># install</span>
+pip install xil-pipeline
+
+<span class="c"># parse a script, then preview TTS cost</span>
+xil-parse scripts/sample_S01E01.md --episode S01E01
+xil-produce --episode S01E01 --dry-run</code></pre>
+          <div class="actions">
+            <a class="btn solid" href="https://github.com/xilcmd/xil-pipeline">View on GitHub</a>
+            <a class="btn line" href="https://xil-pipeline.readthedocs.io/en/latest/">Read the docs</a>
+          </div>
+        </article>
+
+        <article class="impl rs" aria-labelledby="rs-title">
+          <h3 id="rs-title">Rust</h3>
+          <p class="repo">xilcmd/rxil-pipeline</p>
+          <p>A port of all 38 commands into one <code>xil</code> binary. With the default ElevenLabs backend it needs no Python at all; the optional local ML models run as separate workers that <code>xil</code> talks to over JSON lines.</p>
+          <ul>
+            <li>Prebuilt binaries for Linux, macOS, and Windows</li>
+            <li>Browser dashboard built in: <code>xil gui</code></li>
+            <li>Output verified against the Python version by a parity harness</li>
+            <li>User guide and generated man pages</li>
+          </ul>
+<pre><code><span class="c"># download a release, put xil on your PATH, then</span>
+mkdir myshow &amp;&amp; cd myshow &amp;&amp; xil init
+xil status --toolchain
+xil gui</code></pre>
+          <div class="actions">
+            <a class="btn solid" href="https://github.com/xilcmd/rxil-pipeline">View on GitHub</a>
+            <a class="btn line" href="https://xilcmd.github.io/rxil-pipeline/">Read the guide</a>
+            <a class="btn line" href="https://github.com/xilcmd/rxil-pipeline/releases">Download</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="choose-title">
+    <div class="wrap">
+      <h2 id="choose-title">Which one should I use?</h2>
+      <p class="intro">Both read the same scripts and configs and write the same workspace layout, so you can switch between them on the same show.</p>
+      <div class="choose">
+        <p class="py">Choose <strong>Python</strong> if you already work in a Python environment, want to extend the pipeline in Python, or want to track the reference implementation directly.</p>
+        <p class="rs">Choose <strong>Rust</strong> if you want a single download with no Python setup, a faster start on a new machine, or the built-in web dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="pipeline" aria-labelledby="pipeline-title">
+    <div class="wrap">
+      <h2 id="pipeline-title">From page to master</h2>
+      <p class="intro">The core stages run in order. Utilities for voice discovery, sound-effect libraries, script revisions, and cleanup sit alongside them.</p>
+      <ol class="stages">
+        <li><strong>Scan</strong><span>Catch unknown speakers before they vanish from the output.</span></li>
+        <li><strong>Parse</strong><span>Turn the markdown script into structured JSON.</span></li>
+        <li><strong>Produce</strong><span>Generate voice and sound-effect stems.</span></li>
+        <li><strong>Assemble</strong><span>Lay dialogue, effects, ambience, and music on a timeline.</span></li>
+        <li><strong>Export layers</strong><span>Write separate WAVs for hand mixing in a DAW.</span></li>
+        <li><strong>Master</strong><span>Produce the final episode MP3.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="parity-title">
+    <div class="wrap parity">
+      <div>
+        <h2 id="parity-title">Checked, not assumed</h2>
+        <p>The Rust port grows around the Python package one stage at a time. For every check, a parity harness runs the Python <code>xil</code> and the Rust <code>xil</code> on twin copies of the same workspace, then compares exit codes, console output, and every file written, including the audio.</p>
+        <p>CI pins the exact Python commit each check is compared against, so a difference always points to a real change.</p>
+      </div>
+<pre><code>export XIL_PY_BIN=/path/to/xil-pipeline/venv/bin/xil
+python tools/parity/parity.py check --suite</code></pre>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Both implementations are licensed under AGPL-3.0.</span>
+    <a href="https://github.com/xilcmd">github.com/xilcmd</a>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var svg = document.getElementById('wave');
+    if (!svg) return;
+    var text = document.querySelector('.script').textContent.replace(/\s+/g, ' ');
+    var n = 96, w = 600, mid = 80, gap = 2, bw = w / n - gap;
+    var ns = 'http://www.w3.org/2000/svg';
+    var chunk = Math.max(1, Math.floor(text.length / n));
+
+    // Line along the zero crossing
+    var axis = document.createElementNS(ns, 'line');
+    axis.setAttribute('x1', 0); axis.setAttribute('x2', w);
+    axis.setAttribute('y1', mid); axis.setAttribute('y2', mid);
+    axis.style.stroke = 'var(--rule)'; axis.setAttribute('stroke-width', 1);
+    svg.appendChild(axis);
+
+    var prev = 0.4;
+    for (var i = 0; i < n; i++) {
+      var sum = 0;
+      for (var j = 0; j < chunk; j++) {
+        var ch = text.charCodeAt((i * chunk + j) % text.length) || 32;
+        sum += ch === 32 ? 0 : ((ch * 37) % 97) / 97;
+      }
+      var amp = sum / chunk;
+      // Smooth and shape: quieter at the edges, like a clip fading in and out
+      var env = Math.sin(Math.PI * (i + 0.5) / n);
+      amp = (prev * 0.35 + amp * 0.65) * (0.35 + 0.65 * env);
+      prev = amp;
+      var h = Math.max(2, amp * (mid - 6));
+      var x = i * (bw + gap) + gap / 2;
+
+      [['up', mid - h, 'var(--py)'], ['down', mid + 1, 'var(--rs)']].forEach(function (b) {
+        var r = document.createElementNS(ns, 'rect');
+        r.setAttribute('x', x.toFixed(2));
+        r.setAttribute('y', b[1].toFixed(2));
+        r.setAttribute('width', bw.toFixed(2));
+        r.setAttribute('height', (h - (b[0] === 'down' ? 1 : 0)).toFixed(2));
+        r.setAttribute('rx', 1);
+        r.style.fill = b[2];
+        r.setAttribute('class', 'bar' + (b[0] === 'down' ? ' down' : ''));
+        r.style.setProperty('--i', i);
+        svg.appendChild(r);
+      });
+    }
+  })();
+</script>
+</body>
+</html>
