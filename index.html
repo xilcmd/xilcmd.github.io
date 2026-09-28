@@ -124,22 +124,46 @@
   section > .wrap > p.intro { color: var(--muted); max-width: var(--measure); margin: 0 0 2.5rem; }
 
   /* Voice backends */
-  .backends { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); margin-bottom: 2.5rem; }
+  .backends { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 4vw, 3.5rem); margin-bottom: 2.5rem; }
   .backend h3 { font-size: 1.35rem; margin: 0 0 0.25rem; letter-spacing: -0.015em; }
   .backend .kind { color: var(--muted); margin: 0 0 1rem; }
   .backend p { max-width: 52ch; }
+  @media (max-width: 1080px) and (min-width: 861px) { .backends { grid-template-columns: 1fr 1fr; } }
   .backend pre {
     background: var(--panel); border: 1px solid var(--rule); border-radius: 4px;
     padding: 0.9rem 1rem; font-size: 0.85rem; line-height: 1.65; overflow-x: auto; margin: 0;
   }
   .backend pre .c { color: var(--muted); }
   .table-scroll { overflow-x: auto; }
-  table.compare { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 0.97rem; }
+  table.compare { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 0.97rem; }
   table.compare th, table.compare td { text-align: left; vertical-align: top; padding: 0.75rem 1rem 0.75rem 0; border-bottom: 1px solid var(--rule); }
   table.compare thead th { border-bottom: 2px solid var(--ink); font-size: 1rem; }
-  table.compare tbody th { font-weight: 600; width: 22%; }
-  table.compare td { width: 39%; }
+  table.compare tbody th { font-weight: 600; width: 16%; }
+  table.compare td { width: 28%; }
   .note { color: var(--muted); font-size: 0.93rem; max-width: var(--measure); margin: 1.25rem 0 0; }
+
+  /* Setup guides */
+  .setup { margin-top: clamp(2.5rem, 5vw, 3.5rem); }
+  .setup > h3 { font-size: 1.5rem; margin: 0 0 0.5rem; letter-spacing: -0.015em; }
+  .setup > p { color: var(--muted); max-width: var(--measure); margin: 0 0 2rem; }
+  .guides { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; }
+  .guide h4 { font-size: 1.2rem; margin: 0 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--ink); }
+  .guide ol.steps { list-style: none; counter-reset: st; padding: 0; margin: 0; }
+  .guide ol.steps > li { counter-increment: st; position: relative; padding-left: 2.25rem; margin-bottom: 1.5rem; }
+  .guide ol.steps > li::before {
+    content: counter(st); position: absolute; left: 0; top: 0.05rem;
+    width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 1.5px solid var(--ink);
+    display: grid; place-items: center; font-size: 0.85rem; font-weight: 600;
+  }
+  .guide ol.steps strong { display: block; margin-bottom: 0.25rem; }
+  .guide ol.steps p { margin: 0 0 0.6rem; max-width: 56ch; }
+  .guide pre {
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 0.8rem 1rem; font-size: 0.82rem; line-height: 1.6; overflow-x: auto; margin: 0.4rem 0 0.6rem;
+  }
+  .guide pre .c { color: var(--muted); }
+  .guide .variant { font-size: 0.9rem; font-weight: 600; margin: 0.8rem 0 0; }
+  .guide .aside { font-size: 0.9rem; color: var(--muted); margin: 0.2rem 0 0; }
 
   /* Two implementations */
   .impls { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); }
@@ -173,15 +197,29 @@
   .choose .rs { --lang: var(--rs); }
 
   /* Stages */
-  ol.stages { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); counter-reset: s; border-top: 2px solid var(--ink); }
-  ol.stages li { counter-increment: s; padding: 1rem 1rem 0 0; }
-  ol.stages li { display: grid; grid-template-columns: auto 1fr; column-gap: 0.6rem; align-content: start; }
-  ol.stages li::before { content: counter(s); font-family: var(--mono); font-size: 0.85rem; color: var(--muted); grid-column: 1; grid-row: 1; align-self: center; }
-  ol.stages svg { grid-column: 2; grid-row: 1; width: 30px; height: 30px; color: var(--ink); fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
-  ol.stages strong, ol.stages span { grid-column: 1 / -1; }
-  ol.stages strong { margin-top: 0.6rem; }
-  ol.stages strong { display: block; font-size: 1.05rem; }
-  ol.stages span { color: var(--muted); font-size: 0.93rem; line-height: 1.45; display: block; margin-top: 0.25rem; }
+  .pipeline .wrap { max-width: 1320px; }
+  ol.stages { list-style: none; padding: 0; margin: 0; display: flex; gap: 2.1rem; }
+  ol.stages li {
+    position: relative; flex: 1 1 0; min-width: 0;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 6px;
+    padding: 1.5rem 0.9rem 1.35rem; text-align: center;
+  }
+  ol.stages li.optional { border-style: dashed; border-color: var(--muted); background: transparent; }
+  ol.stages li:not(:last-child)::after {
+    content: "→";
+    content: "→" / "";
+    position: absolute; right: -1.6rem; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 1.1rem;
+  }
+  ol.stages .icon { display: block; font-size: 1.6rem; line-height: 1; margin-bottom: 0.9rem; }
+  ol.stages strong { display: block; font-size: 1.02rem; letter-spacing: -0.01em; }
+  ol.stages .tag { display: inline-block; margin-top: 0.4rem; font-size: 0.78rem; color: var(--muted); border: 1px solid var(--rule); border-radius: 3px; padding: 0.05rem 0.45rem; }
+  ol.stages span.desc { display: block; color: var(--muted); font-size: 0.88rem; line-height: 1.45; margin-top: 0.5rem; }
+  @media (max-width: 1100px) {
+    ol.stages { flex-direction: column; align-items: center; gap: 2rem; }
+    ol.stages li { width: 100%; max-width: 560px; }
+    ol.stages li:not(:last-child)::after { content: "↓"; content: "↓" / ""; right: auto; left: 50%; top: auto; bottom: -1.65rem; transform: translateX(-50%); }
+  }
 
   /* Parity */
   .parity { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; }
@@ -196,13 +234,11 @@
   footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
 
   @media (max-width: 860px) {
-    .signal, .impls, .parity, .choose, .backends { grid-template-columns: 1fr; }
-    ol.stages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .signal, .impls, .parity, .choose, .backends, .guides { grid-template-columns: 1fr; }
     .impls { gap: 3rem; }
   }
   @media (max-width: 480px) {
     header.site nav { gap: 1rem; }
-    ol.stages { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -214,7 +250,7 @@
     <nav aria-label="Primary">
       <a href="#voices">Voices</a>
       <a href="#versions">Versions</a>
-      <a href="#pipeline">Pipeline</a>
+      <a href="#pipeline">How it works</a>
       <a href="https://github.com/xilcmd">GitHub</a>
     </nav>
   </header>
@@ -250,7 +286,7 @@ heard that too, didn't you?</pre>
   <section id="voices" aria-labelledby="voices-title">
     <div class="wrap">
       <h2 id="voices-title">Pick where the voices come from</h2>
-      <p class="intro">Dialogue can be generated by the ElevenLabs cloud service or by Chatterbox Turbo, an open-source model that runs on your own GPU. Both backends work with the Python and Rust versions, and you choose per run.</p>
+      <p class="intro">Dialogue can be generated by the ElevenLabs cloud service or by Chatterbox Turbo, an open-source model that runs on your own machine. For a quick trial with almost no setup, gTTS reads the whole script in a single voice. Every backend works with the Python and Rust versions, and you choose per run.</p>
 
       <div class="backends">
         <article class="backend" aria-labelledby="el-title">
@@ -266,7 +302,7 @@ xil-produce --episode S01E01</code></pre>
         <article class="backend" aria-labelledby="cb-title">
           <h3 id="cb-title">Chatterbox Turbo</h3>
           <p class="kind">Open-source model from Hugging Face, runs locally</p>
-          <p>Free to run once it's set up. Model weights download from Hugging Face on first use, and each character is cloned from a short reference recording you provide. It lives in its own virtual environment so its PyTorch dependencies stay out of the main install, and the pipeline finds it automatically.</p>
+          <p>Free to run once it's set up, on an NVIDIA GPU or on the CPU alone. Model weights download from Hugging Face on first use, and each character is cloned from a short reference recording you provide. It lives in its own virtual environment so its PyTorch dependencies stay out of the main install, and the pipeline finds it automatically.</p>
 <pre><code><span class="c"># one reference clip per character, over 5 seconds</span>
 voice_refs/&lt;speaker_key&gt;.wav
 
@@ -274,24 +310,102 @@ voice_refs/&lt;speaker_key&gt;.wav
 export HF_TOKEN=hf_...
 xil-produce --episode S01E01 --backend chatterbox-turbo</code></pre>
         </article>
+        <article class="backend" aria-labelledby="gt-title">
+          <h3 id="gt-title">gTTS</h3>
+          <p class="kind">Free, minimal setup, single voice</p>
+          <p>The original proof of concept, and still the fastest way to hear a script end to end. There's no API key, no GPU, and no voice setup; every character is read in the same voice. Useful for checking timing and flow before committing to a full render.</p>
+<pre><code><span class="c"># gTTS ships with the optional extras</span>
+pip install "xil-pipeline[all]"
+xil-produce --episode S01E01 --backend gtts</code></pre>
+        </article>
       </div>
 
       <div class="table-scroll">
         <table class="compare">
-          <caption class="visually-hidden">ElevenLabs compared with Chatterbox Turbo</caption>
+          <caption class="visually-hidden">ElevenLabs, Chatterbox Turbo, and gTTS compared</caption>
           <thead>
-            <tr><th scope="col"></th><th scope="col">ElevenLabs</th><th scope="col">Chatterbox Turbo</th></tr>
+            <tr><th scope="col"></th><th scope="col">ElevenLabs</th><th scope="col">Chatterbox Turbo</th><th scope="col">gTTS</th></tr>
           </thead>
           <tbody>
-            <tr><th scope="row">Cost</th><td>Paid per character, from your ElevenLabs plan</td><td>Free to run; you supply the hardware</td></tr>
-            <tr><th scope="row">Runs on</th><td>ElevenLabs servers, over the internet</td><td>Your machine, with a CUDA-capable GPU</td></tr>
-            <tr><th scope="row">Voices</th><td>Chosen from the ElevenLabs voice library</td><td>Cloned from your own reference clips</td></tr>
-            <tr><th scope="row">Setup</th><td>An API key</td><td>A separate virtual environment with PyTorch</td></tr>
-            <tr><th scope="row">Delivery cues</th><td>ElevenLabs audio tags</td><td>19 built-in tags, such as <code>[whispering]</code>, <code>[sigh]</code>, and <code>[laugh]</code></td></tr>
+            <tr><th scope="row">Cost</th><td>Paid per character, from your ElevenLabs plan</td><td>Free to run; you supply the hardware</td><td>Free</td></tr>
+            <tr><th scope="row">Runs on</th><td>ElevenLabs servers, over the internet</td><td>Your machine: an NVIDIA GPU through CUDA when one is available, otherwise the CPU</td><td>Google's text-to-speech service, over the internet</td></tr>
+            <tr><th scope="row">Voices</th><td>Chosen from the ElevenLabs voice library</td><td>Cloned from your own reference clips</td><td>One voice for the whole cast</td></tr>
+            <tr><th scope="row">Setup</th><td>An API key</td><td>A separate virtual environment with PyTorch</td><td>Nothing beyond the optional extras; no key or GPU</td></tr>
+            <tr><th scope="row">Delivery cues</th><td>ElevenLabs audio tags</td><td>19 built-in tags, such as <code>[whispering]</code>, <code>[sigh]</code>, and <code>[laugh]</code></td><td>None</td></tr>
           </tbody>
         </table>
       </div>
       <p class="note">Scripts can be shared between backends. Under Chatterbox Turbo, any bracketed tag it doesn't recognize is stripped, so ElevenLabs-only cues can stay in the script.</p>
+
+      <div class="setup" id="setup">
+        <h3>Setting up a backend</h3>
+        <p>gTTS works as soon as the optional extras are installed. ElevenLabs needs an account and a key; Chatterbox Turbo needs its own Python environment and a reference clip for each voice.</p>
+        <div class="guides">
+
+          <div class="guide" aria-labelledby="setup-el">
+            <h4 id="setup-el">ElevenLabs</h4>
+            <ol class="steps">
+              <li>
+                <strong>Create an API key</strong>
+                <p>Sign in at elevenlabs.io, then open Profile and choose API Keys. Your plan's character allowance is what renders spend.</p>
+              </li>
+              <li>
+                <strong>Set it in your shell</strong>
+<pre><code>export ELEVENLABS_API_KEY=your_key_here</code></pre>
+                <p class="aside">To keep it across sessions, add that line to <code>~/.bashrc</code> or <code>~/.zshrc</code>. Check it with <code>echo $ELEVENLABS_API_KEY</code>.</p>
+              </li>
+              <li>
+                <strong>Pick voices for the cast</strong>
+                <p>Browse and audition voices with <code>xil-voices</code>, then assign them in the show's cast file, <code>cast_&lt;slug&gt;_&lt;TAG&gt;.json</code>.</p>
+              </li>
+              <li>
+                <strong>Preview the cost, then render</strong>
+<pre><code>xil-produce --episode S01E01 --dry-run
+xil-produce --episode S01E01</code></pre>
+                <p class="aside">Only the commands that call the API need the key: <code>xil-produce</code>, <code>xil-sfx</code>, <code>xil-studio</code>, <code>xil-sample</code>, and <code>xil-cues --generate</code>. Parsing, DAW export, and mastering work without it.</p>
+              </li>
+            </ol>
+          </div>
+
+          <div class="guide" aria-labelledby="setup-cb">
+            <h4 id="setup-cb">Chatterbox Turbo</h4>
+            <ol class="steps">
+              <li>
+                <strong>Create a dedicated environment</strong>
+                <p>Chatterbox pulls in PyTorch, so it gets its own virtual environment, <code>venv-chatterbox/</code>, in your code root (<code>XIL_CODEROOT</code>). The pipeline finds it automatically.</p>
+<pre><code>python -m venv venv-chatterbox
+venv-chatterbox/bin/pip install --upgrade pip</code></pre>
+              </li>
+              <li>
+                <strong>Install PyTorch for your hardware</strong>
+                <p class="variant">With an NVIDIA GPU (CUDA 12.4 shown; match your driver)</p>
+<pre><code>venv-chatterbox/bin/pip install 'torch==2.6.0' 'torchaudio==2.6.0' \
+    --index-url https://download.pytorch.org/whl/cu124</code></pre>
+                <p class="variant">CPU only</p>
+<pre><code>venv-chatterbox/bin/pip install 'torch==2.6.0' 'torchaudio==2.6.0' \
+    --index-url https://download.pytorch.org/whl/cpu</code></pre>
+                <p class="aside">When CUDA isn't available, Chatterbox Turbo falls back to the CPU. It produces the same voices, just more slowly. To see which you'll get:</p>
+<pre><code>venv-chatterbox/bin/python -c "import torch; print(torch.cuda.is_available())"</code></pre>
+              </li>
+              <li>
+                <strong>Install Chatterbox</strong>
+<pre><code>venv-chatterbox/bin/pip install chatterbox-tts</code></pre>
+                <p class="aside">Model weights download from Hugging Face on the first render. If the model repository is gated for your account, run <code>huggingface-cli login</code> or set <code>HF_TOKEN</code> first.</p>
+              </li>
+              <li>
+                <strong>Record a reference clip per character</strong>
+                <p>Save one clip for each speaker as <code>voice_refs/&lt;speaker_key&gt;.wav</code>. Each clip must be longer than 5 seconds.</p>
+              </li>
+              <li>
+                <strong>Render</strong>
+<pre><code>xil-produce --episode S01E01 --backend chatterbox-turbo</code></pre>
+                <p class="aside">If your environment lives somewhere else, point to its Python with <code>--chatterbox-python PATH</code>. The Rust version manages this environment with uv under <code>XIL_CODEROOT</code>; see its guide.</p>
+              </li>
+            </ol>
+          </div>
+
+        </div>
+      </div>
     </div>
   </section>
 
@@ -358,17 +472,18 @@ xil gui</code></pre>
     </div>
   </section>
 
-  <section id="pipeline" aria-labelledby="pipeline-title">
+  <section id="pipeline" class="pipeline" aria-labelledby="pipeline-title">
     <div class="wrap">
-      <h2 id="pipeline-title">From page to master</h2>
-      <p class="intro">The core stages run in order. Utilities for voice discovery, sound-effect libraries, script revisions, and cleanup sit alongside them.</p>
+      <h2 id="pipeline-title">How it works</h2>
+      <p class="intro">From markdown script to finished stereo episode in seven steps. Assemble is optional: it lets you hear the produced audio immediately, before the DAW export.</p>
       <ol class="stages">
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/><path d="M8 10.5h5"/></svg><strong>Scan</strong><span>Catch unknown speakers before they vanish from the output.</span></li>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4c-2 0-3 1-3 3v2.5c0 1-.8 2-2 2.5 1.2.5 2 1.5 2 2.5V17c0 2 1 3 3 3"/><path d="M16 4c2 0 3 1 3 3v2.5c0 1 .8 2 2 2.5-1.2.5-2 1.5-2 2.5V17c0 2-1 3-3 3"/></svg><strong>Parse</strong><span>Turn the markdown script into structured JSON.</span></li>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21M9 21h6"/></svg><strong>Produce</strong><span>Generate voice and sound-effect stems.</span></li>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/><rect x="5" y="4.5" width="6" height="3" rx="1"/><rect x="10" y="10.5" width="8" height="3" rx="1"/><rect x="4" y="16.5" width="11" height="3" rx="1"/></svg><strong>Assemble</strong><span>Lay dialogue, effects, ambience, and music on a timeline.</span></li>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5"/><path d="M3 16.5l9 4.5 9-4.5"/></svg><strong>Export layers</strong><span>Write separate WAVs for hand mixing in a DAW.</span></li>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 5.5a6.5 6.5 0 0 1 6.5 6.5"/></svg><strong>Master</strong><span>Produce the final episode MP3.</span></li>
+        <li><span class="icon" aria-hidden="true">✍️</span><strong>Write</strong><span class="desc">Draft the episode as a markdown script following the <a href="https://github.com/xilcmd/xil-pipeline/blob/main/claude-scriptwriter-reference.md">script style guide</a></span></li>
+        <li><span class="icon" aria-hidden="true">🔍</span><strong>Scan</strong><span class="desc">Check the script for unknown speakers before anything is generated</span></li>
+        <li><span class="icon" aria-hidden="true">🧩</span><strong>Parse</strong><span class="desc">Turn the markdown script into structured JSON with voices, cues, and timing</span></li>
+        <li><span class="icon" aria-hidden="true">🎙️</span><strong>Produce</strong><span class="desc">Generate dialogue and sound effects with ElevenLabs, local Chatterbox Turbo, or gTTS</span></li>
+        <li class="optional"><span class="icon" aria-hidden="true">🎧</span><strong>Assemble</strong><span class="tag">Optional</span><span class="desc">Stitch the produced stems into a rough cut you can listen to right away</span></li>
+        <li><span class="icon" aria-hidden="true">🎚️</span><strong>DAW export</strong><span class="desc">Organize dialogue, SFX, music, and ambience into separate WAV layers and build the episode's timeline HTML</span></li>
+        <li><span class="icon" aria-hidden="true">💿</span><strong>Master</strong><span class="desc">Mix the WAV layers down to the final stereo MP3</span></li>
       </ol>
     </div>
   </section>
