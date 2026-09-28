@@ -248,9 +248,9 @@
   <header class="site">
     <a class="brand" href="./">xilcmd</a>
     <nav aria-label="Primary">
+      <a href="#pipeline">How it works</a>
       <a href="#voices">Voices</a>
       <a href="#versions">Versions</a>
-      <a href="#pipeline">How it works</a>
       <a href="https://github.com/xilcmd">GitHub</a>
     </nav>
   </header>
@@ -282,6 +282,22 @@ heard that too, didn't you?</pre>
       </div>
     </div>
   </div>
+
+  <section id="pipeline" class="pipeline" aria-labelledby="pipeline-title">
+    <div class="wrap">
+      <h2 id="pipeline-title">How it works</h2>
+      <p class="intro">From markdown script to finished stereo episode in seven steps. Assemble is optional: it lets you hear the produced audio immediately, before the DAW export.</p>
+      <ol class="stages">
+        <li><span class="icon" aria-hidden="true">✍️</span><strong>Write</strong><span class="desc">Draft the episode as a markdown script following the <a href="https://github.com/xilcmd/xil-pipeline/blob/main/claude-scriptwriter-reference.md">script style guide</a></span></li>
+        <li><span class="icon" aria-hidden="true">🔍</span><strong>Scan</strong><span class="desc">Check the script for unknown speakers before anything is generated</span></li>
+        <li><span class="icon" aria-hidden="true">🧩</span><strong>Parse</strong><span class="desc">Turn the markdown script into structured JSON with voices, cues, and timing</span></li>
+        <li><span class="icon" aria-hidden="true">🎙️</span><strong>Produce</strong><span class="desc">Generate dialogue and sound effects with ElevenLabs, local Chatterbox Turbo, or gTTS</span></li>
+        <li class="optional"><span class="icon" aria-hidden="true">🎧</span><strong>Assemble</strong><span class="tag">Optional</span><span class="desc">Stitch the produced stems into a rough cut you can listen to right away</span></li>
+        <li><span class="icon" aria-hidden="true">🎚️</span><strong>DAW export</strong><span class="desc">Organize dialogue, SFX, music, and ambience into separate WAV layers and build the episode's timeline HTML</span></li>
+        <li><span class="icon" aria-hidden="true">💿</span><strong>Master</strong><span class="desc">Mix the WAV layers down to the final stereo MP3</span></li>
+      </ol>
+    </div>
+  </section>
 
   <section id="voices" aria-labelledby="voices-title">
     <div class="wrap">
@@ -469,22 +485,6 @@ xil gui</code></pre>
         <p class="py">Choose <strong>Python</strong> if you already work in a Python environment, want to extend the pipeline in Python, or want to track the reference implementation directly.</p>
         <p class="rs">Choose <strong>Rust</strong> if you want a single download with no Python setup, a faster start on a new machine, or the built-in web dashboard.</p>
       </div>
-    </div>
-  </section>
-
-  <section id="pipeline" class="pipeline" aria-labelledby="pipeline-title">
-    <div class="wrap">
-      <h2 id="pipeline-title">How it works</h2>
-      <p class="intro">From markdown script to finished stereo episode in seven steps. Assemble is optional: it lets you hear the produced audio immediately, before the DAW export.</p>
-      <ol class="stages">
-        <li><span class="icon" aria-hidden="true">✍️</span><strong>Write</strong><span class="desc">Draft the episode as a markdown script following the <a href="https://github.com/xilcmd/xil-pipeline/blob/main/claude-scriptwriter-reference.md">script style guide</a></span></li>
-        <li><span class="icon" aria-hidden="true">🔍</span><strong>Scan</strong><span class="desc">Check the script for unknown speakers before anything is generated</span></li>
-        <li><span class="icon" aria-hidden="true">🧩</span><strong>Parse</strong><span class="desc">Turn the markdown script into structured JSON with voices, cues, and timing</span></li>
-        <li><span class="icon" aria-hidden="true">🎙️</span><strong>Produce</strong><span class="desc">Generate dialogue and sound effects with ElevenLabs, local Chatterbox Turbo, or gTTS</span></li>
-        <li class="optional"><span class="icon" aria-hidden="true">🎧</span><strong>Assemble</strong><span class="tag">Optional</span><span class="desc">Stitch the produced stems into a rough cut you can listen to right away</span></li>
-        <li><span class="icon" aria-hidden="true">🎚️</span><strong>DAW export</strong><span class="desc">Organize dialogue, SFX, music, and ambience into separate WAV layers and build the episode's timeline HTML</span></li>
-        <li><span class="icon" aria-hidden="true">💿</span><strong>Master</strong><span class="desc">Mix the WAV layers down to the final stereo MP3</span></li>
-      </ol>
     </div>
   </section>
 
