@@ -146,6 +146,8 @@
   .setup { margin-top: clamp(2.5rem, 5vw, 3.5rem); }
   .setup > h3 { font-size: 1.5rem; margin: 0 0 0.5rem; letter-spacing: -0.015em; }
   .setup > p { color: var(--muted); max-width: var(--measure); margin: 0 0 2rem; }
+  .setup > ul { color: var(--muted); max-width: var(--measure); margin: 0 0 1.5rem; padding-left: 1.3rem; }
+  .setup > ul li { margin-bottom: 0.4rem; }
   .guides { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; }
   .guide h4 { font-size: 1.2rem; margin: 0 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--ink); }
   .guide ol.steps { list-style: none; counter-reset: st; padding: 0; margin: 0; }
@@ -330,9 +332,7 @@ xil-produce --episode S01E01 --backend chatterbox-turbo</code></pre>
           <h3 id="gt-title">gTTS</h3>
           <p class="kind">Free, minimal setup, single voice</p>
           <p>The original proof of concept, and still the fastest way to hear a script end to end. There's no API key, no GPU, and no voice setup; every character is read in the same voice. Useful for checking timing and flow before committing to a full render.</p>
-<pre><code><span class="c"># gTTS ships with the optional extras</span>
-pip install "xil-pipeline[all]"
-xil-produce --episode S01E01 --backend gtts</code></pre>
+<pre><code>xil-produce --episode S01E01 --backend gtts</code></pre>
         </article>
       </div>
 
@@ -355,7 +355,18 @@ xil-produce --episode S01E01 --backend gtts</code></pre>
 
       <div class="setup" id="setup">
         <h3>Setting up a backend</h3>
-        <p>gTTS works as soon as the optional extras are installed. ElevenLabs needs an account and a key; Chatterbox Turbo needs its own Python environment and a reference clip for each voice.</p>
+        <p>Each backend has its own setup needs:</p>
+        <ul>
+          <li><strong>gTTS</strong> works as soon as the optional extras are installed.</li>
+          <li><strong>ElevenLabs</strong> needs an account and a key.</li>
+          <li><strong>Chatterbox Turbo</strong> needs its own Python environment and a reference clip for each voice.</li>
+        </ul>
+        <p class="note">Two environment variables keep your show separate from the pipeline's own software:</p>
+        <ul class="note">
+          <li><code>XIL_PROJECTROOT</code> is your show's workspace&mdash;scripts, generated audio, and configs.</li>
+          <li><code>XIL_CODEROOT</code> is where the pipeline and any local-model environments, like <code>venv-chatterbox/</code> below, are installed.</li>
+        </ul>
+        <p class="note">Both are optional; each defaults to your current folder if unset.</p>
         <div class="guides">
 
           <div class="guide" aria-labelledby="setup-el">
@@ -389,7 +400,8 @@ xil-produce --episode S01E01</code></pre>
               <li>
                 <strong>Create a dedicated environment</strong>
                 <p>Chatterbox pulls in PyTorch, so it gets its own virtual environment, <code>venv-chatterbox/</code>, in your code root (<code>XIL_CODEROOT</code>). The pipeline finds it automatically.</p>
-<pre><code>python -m venv venv-chatterbox
+<pre><code>cd "$XIL_CODEROOT"
+python -m venv venv-chatterbox
 venv-chatterbox/bin/pip install --upgrade pip</code></pre>
               </li>
               <li>
@@ -415,7 +427,7 @@ venv-chatterbox/bin/pip install --upgrade pip</code></pre>
               <li>
                 <strong>Render</strong>
 <pre><code>xil-produce --episode S01E01 --backend chatterbox-turbo</code></pre>
-                <p class="aside">If your environment lives somewhere else, point to its Python with <code>--chatterbox-python PATH</code>. The Rust version manages this environment with uv under <code>XIL_CODEROOT</code>; see its guide.</p>
+                <p class="aside">If your environment lives somewhere else, point to its Python with <code>--chatterbox-python PATH</code>. The Rust version uses the same kind of environment under <code>XIL_CODEROOT</code>, set up by hand with <code>uv</code> instead of <code>pip</code>; see its guide.</p>
               </li>
             </ol>
           </div>
@@ -439,6 +451,7 @@ venv-chatterbox/bin/pip install --upgrade pip</code></pre>
             <li>Python 3.12+ and ffmpeg</li>
             <li>ElevenLabs by default, with local Chatterbox Turbo voices and MMAudio sound effects as options</li>
             <li>Exports separate WAV layers for mixing in Audacity</li>
+            <li>Optional browser dashboard: <code>pip install "xil-pipeline[gui]"</code>, then <code>xil-gui</code></li>
             <li>Man pages and full documentation on Read the Docs</li>
           </ul>
 <pre><code><span class="c"># install</span>
@@ -463,7 +476,10 @@ xil-produce --episode S01E01 --dry-run</code></pre>
             <li>Output verified against the Python version by a parity harness</li>
             <li>User guide and generated man pages</li>
           </ul>
-<pre><code><span class="c"># download a release, put xil on your PATH, then</span>
+<pre><code><span class="c"># install
+# download a release, put xil on your PATH</span>
+
+<span class="c"># create a workspace, then explore</span>
 mkdir myshow &amp;&amp; cd myshow &amp;&amp; xil init
 xil status --toolchain
 xil gui</code></pre>
