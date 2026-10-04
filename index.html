@@ -398,27 +398,17 @@ xil-produce --episode S01E01</code></pre>
             <h4 id="setup-cb">Chatterbox Turbo</h4>
             <ol class="steps">
               <li>
-                <strong>Create a dedicated environment</strong>
-                <p>Chatterbox pulls in PyTorch, so it gets its own virtual environment, <code>venv-chatterbox/</code>, in your code root (<code>XIL_CODEROOT</code>). The pipeline finds it automatically.</p>
+                <strong>Build the environment</strong>
+                <p>Chatterbox pulls in PyTorch, so it gets its own virtual environment, <code>venv-chatterbox/</code>. One command builds it in your code root (<code>XIL_CODEROOT</code>), picks CUDA or CPU PyTorch for your hardware, installs Chatterbox, and checks that it works. The pipeline then finds it automatically.</p>
+<pre><code>xil setup chatterbox --dry-run   <span class="c"># show the commands first</span>
+xil setup chatterbox</code></pre>
+                <p class="aside">It uses <code>uv</code> when installed, otherwise <code>python3.13 -m venv</code> and pip. Force a build with <code>--device cuda</code> or <code>--device cpu</code>; running it again on a working environment does nothing. Model weights download from Hugging Face on the first render. If the model repository is gated for your account, run <code>huggingface-cli login</code> or set <code>HF_TOKEN</code> first.</p>
+                <p class="variant">By hand instead (CUDA 12.4 shown; use <code>.../whl/cpu</code> for CPU only)</p>
 <pre><code>cd "$XIL_CODEROOT"
-python -m venv venv-chatterbox
-venv-chatterbox/bin/pip install --upgrade pip</code></pre>
-              </li>
-              <li>
-                <strong>Install PyTorch for your hardware</strong>
-                <p class="variant">With an NVIDIA GPU (CUDA 12.4 shown; match your driver)</p>
-<pre><code>venv-chatterbox/bin/pip install 'torch==2.6.0' 'torchaudio==2.6.0' \
-    --index-url https://download.pytorch.org/whl/cu124</code></pre>
-                <p class="variant">CPU only</p>
-<pre><code>venv-chatterbox/bin/pip install 'torch==2.6.0' 'torchaudio==2.6.0' \
-    --index-url https://download.pytorch.org/whl/cpu</code></pre>
-                <p class="aside">When CUDA isn't available, Chatterbox Turbo falls back to the CPU. It produces the same voices, just more slowly. To see which you'll get:</p>
-<pre><code>venv-chatterbox/bin/python -c "import torch; print(torch.cuda.is_available())"</code></pre>
-              </li>
-              <li>
-                <strong>Install Chatterbox</strong>
-<pre><code>venv-chatterbox/bin/pip install chatterbox-tts</code></pre>
-                <p class="aside">Model weights download from Hugging Face on the first render. If the model repository is gated for your account, run <code>huggingface-cli login</code> or set <code>HF_TOKEN</code> first.</p>
+python3.13 -m venv venv-chatterbox
+venv-chatterbox/bin/pip install 'torch==2.6.0' 'torchaudio==2.6.0' \
+    --index-url https://download.pytorch.org/whl/cu124
+venv-chatterbox/bin/pip install chatterbox-tts pydub</code></pre>
               </li>
               <li>
                 <strong>Record a reference clip per character</strong>
@@ -427,7 +417,7 @@ venv-chatterbox/bin/pip install --upgrade pip</code></pre>
               <li>
                 <strong>Render</strong>
 <pre><code>xil-produce --episode S01E01 --backend chatterbox-turbo</code></pre>
-                <p class="aside">If your environment lives somewhere else, point to its Python with <code>--chatterbox-python PATH</code>. The Rust version uses the same kind of environment under <code>XIL_CODEROOT</code>, set up by hand with <code>uv</code> instead of <code>pip</code>; see its guide.</p>
+                <p class="aside">If your environment lives somewhere else, point to its Python with <code>--chatterbox-python PATH</code>. Both the Python and Rust versions use the same environment.</p>
               </li>
             </ol>
           </div>
@@ -469,7 +459,7 @@ xil-produce --episode S01E01 --dry-run</code></pre>
         <article class="impl rs" aria-labelledby="rs-title">
           <h3 id="rs-title">Rust</h3>
           <p class="repo">xilcmd/rxil-pipeline</p>
-          <p>A port of all 38 commands into one <code>xil</code> binary. With the default ElevenLabs backend it needs no Python at all; the optional local ML models run as separate workers that <code>xil</code> talks to over JSON lines.</p>
+          <p>A port of all 39 commands into one <code>xil</code> binary. With the default ElevenLabs backend it needs no Python at all; the optional local ML models run as separate workers that <code>xil</code> talks to over JSON lines.</p>
           <ul>
             <li>Prebuilt binaries for Linux, macOS, and Windows</li>
             <li>Browser dashboard built in: <code>xil gui</code></li>
