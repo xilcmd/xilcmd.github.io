@@ -361,10 +361,11 @@ xil-produce --episode S01E01 --backend chatterbox-turbo</code></pre>
           <li><strong>ElevenLabs</strong> needs an account and a key.</li>
           <li><strong>Chatterbox Turbo</strong> needs its own Python environment and a reference clip for each voice.</li>
         </ul>
+        <p>Two optional local tools work the same way: <strong>Whisper</strong> checks rendered lines against the script, and <strong>MMAudio</strong> makes sound effects on your own GPU. See <a href="#setup-local">Local tools</a> below.</p>
         <p class="note">Two environment variables keep your show separate from the pipeline's own software:</p>
         <ul class="note">
           <li><code>XIL_PROJECTROOT</code> is your show's workspace&mdash;scripts, generated audio, and configs.</li>
-          <li><code>XIL_CODEROOT</code> is where the pipeline and any local-model environments, like <code>venv-chatterbox/</code> below, are installed.</li>
+          <li><code>XIL_CODEROOT</code> is where the pipeline and any local-model environments, like <code>venv-chatterbox/</code>, <code>venv-whisper/</code>, and <code>venv-mmaudio/</code>, are installed.</li>
         </ul>
         <p class="note">Both are optional; each defaults to your current folder if unset.</p>
         <div class="guides">
@@ -418,6 +419,31 @@ venv-chatterbox/bin/pip install chatterbox-tts pydub</code></pre>
                 <strong>Render</strong>
 <pre><code>xil-produce --episode S01E01 --backend chatterbox-turbo</code></pre>
                 <p class="aside">If your environment lives somewhere else, point to its Python with <code>--chatterbox-python PATH</code>. Both the Python and Rust versions use the same environment.</p>
+              </li>
+            </ol>
+          </div>
+
+          <div class="guide" aria-labelledby="setup-local">
+            <h4 id="setup-local">Local tools: Whisper and MMAudio</h4>
+            <ol class="steps">
+              <li>
+                <strong>Whisper, to check rendered lines</strong>
+                <p><code>xil stem-verify</code> can transcribe every rendered line with Faster-Whisper, and <code>xil stem-compare</code> then flags lines that do not match the script. Whisper gets its own environment, <code>venv-whisper/</code>. It does not need PyTorch, so it is small.</p>
+<pre><code>xil setup whisper
+xil stem-verify --episode S01E01</code></pre>
+                <p class="aside">On an NVIDIA GPU it runs on CUDA. If the GPU libraries are missing, it falls back to the CPU by itself.</p>
+              </li>
+              <li>
+                <strong>MMAudio, for local sound effects</strong>
+                <p>MMAudio makes sound effects on your own GPU (about 6&nbsp;GB of video memory) instead of calling ElevenLabs. It is not on PyPI, so setup clones it next to <code>venv-mmaudio/</code> (this needs <code>git</code>). It uses Python 3.12, because MMAudio does not install on 3.13. The model weights, about 6&nbsp;GB, download on the first run into the same folder.</p>
+<pre><code>xil setup mmaudio --dry-run   <span class="c"># show the commands first</span>
+xil setup mmaudio
+xil sfx --episode S01E01 --gen-sfx --sfx-backend mmaudio --mmaudio-accept-noncommercial</code></pre>
+                <p class="aside"><strong>Non-commercial only.</strong> MMAudio's code is MIT licensed, but its model weights are CC&nbsp;BY-NC&nbsp;4.0. Audio it makes must not appear in a show that earns money. The pipeline refuses to start it without <code>--mmaudio-accept-noncommercial</code>, and it tags every clip it makes.</p>
+              </li>
+              <li>
+                <strong>Get the right Python</strong>
+                <p>Install <a href="https://docs.astral.sh/uv/">uv</a> first. Setup then fetches the Python version each tool needs. Without uv, setup uses whatever <code>python3</code> you have and warns you if the version is wrong.</p>
               </li>
             </ol>
           </div>
