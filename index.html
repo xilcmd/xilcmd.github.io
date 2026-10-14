@@ -70,7 +70,7 @@
   }
   .brand { font-weight: 800; font-size: 1.125rem; text-decoration: none; letter-spacing: -0.01em; }
   header.site nav { display: flex; gap: 1.5rem; font-size: 0.95rem; }
-  header.site nav a { text-decoration: none; color: var(--muted); }
+  header.site nav a { text-decoration: none; color: var(--muted); white-space: nowrap; }
   header.site nav a:hover { color: var(--ink); }
 
   /* Hero */
@@ -240,7 +240,8 @@
     .impls { gap: 3rem; }
   }
   @media (max-width: 480px) {
-    header.site nav { gap: 1rem; }
+    header.site { flex-wrap: wrap; row-gap: 0.5rem; }
+    header.site nav { gap: 0.5rem 1rem; flex-wrap: wrap; }
   }
 </style>
 </head>
@@ -253,6 +254,7 @@
       <a href="#pipeline">How it works</a>
       <a href="#voices">Voices</a>
       <a href="#versions">Versions</a>
+      <a href="guitarz/">guitarz</a>
       <a href="https://github.com/xilcmd">GitHub</a>
     </nav>
   </header>
@@ -536,6 +538,7 @@ python tools/parity/parity.py check --suite</code></pre>
 <footer>
   <div class="wrap">
     <span>Both implementations are licensed under AGPL-3.0.</span>
+    <a href="guitarz/">guitarz: a Guitar Pro tab player</a>
     <a href="https://github.com/xilcmd">github.com/xilcmd</a>
   </div>
 </footer>
